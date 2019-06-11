@@ -340,6 +340,173 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/Blog/2019/06/11/记一次事务不起作用的排错历程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hyman Hu">
+      <meta itemprop="description" content="好心态才有好状态">
+      <meta itemprop="image" content="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/05/20190504135939.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hyman">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/Blog/2019/06/11/记一次事务不起作用的排错历程/" class="post-title-link" itemprop="url">记一次事务不起作用的排错历程</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-11 22:04:03 / 修改时间：22:11:04" itemprop="dateCreated datePublished" datetime="2019-06-11T22:04:03+08:00">2019-06-11</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/Blog/categories/Lesson-Learned/" itemprop="url" rel="index"><span itemprop="name">Lesson-Learned</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="记一次-Transactional不起作用的排错历程"><a href="#记一次-Transactional不起作用的排错历程" class="headerlink" title="记一次@Transactional不起作用的排错历程"></a>记一次@Transactional不起作用的排错历程</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>服务端接口需提供接口，在web端将某个终端调为在线模式时，同时需要更新内存中在线的终端数据。 在更新终端状态成功之后，立刻查询数据库处于在线状态的终端数据,然后内存中的数据。更新状态与更新内存数据在同一个事务，查询操作需要保证能够读取到还未提交的更新操作。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/Blog/2019/06/11/记一次事务不起作用的排错历程/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/Blog/2019/05/20/使用不同json包对象转Json过程中的大小写问题/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -385,12 +552,24 @@
                 
               
 
-              <time title="创建时间：2019-05-20 21:29:22 / 修改时间：21:34:34" itemprop="dateCreated datePublished" datetime="2019-05-20T21:29:22+08:00">2019-05-20</time>
+              <time title="创建时间：2019-05-20 21:29:22" itemprop="dateCreated datePublished" datetime="2019-05-20T21:29:22+08:00">2019-05-20</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-21 08:34:30" itemprop="dateModified" datetime="2019-05-21T08:34:30+08:00">2019-05-21</time>
               
             
           </span>
@@ -1234,7 +1413,7 @@
                 
                   <a href="/Blog/archives">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1353,7 +1532,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">25k</span>
+    <span title="站点总字数">37k</span>
   
 
   
@@ -1362,7 +1541,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点阅读时长">23 分钟</span>
+    <span title="站点阅读时长">34 分钟</span>
   
 </div>
 

@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/Blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/Blog/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/Blog/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/Blog/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/Blog/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/Blog/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/Blog/',
+    scheme: 'Gemini',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="记一次@Transactional不起作用的排错历程问题描述服务端接口需提供接口，在web端将某个终端调为在线模式时，同时需要更新内存中在线的终端数据。 在更新终端状态成功之后，立刻查询数据库处于在线状态的终端数据,然后内存中的数据。更新状态与更新内存数据在同一个事务，查询操作需要保证能够读取到还未提交的更新操作。">
+<meta name="keywords" content="经验总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次事务不起作用的排错历程">
+<meta property="og:url" content="http://yoursite.com/2019/06/11/记一次事务不起作用的排错历程/index.html">
+<meta property="og:site_name" content="Hyman">
+<meta property="og:description" content="记一次@Transactional不起作用的排错历程问题描述服务端接口需提供接口，在web端将某个终端调为在线模式时，同时需要更新内存中在线的终端数据。 在更新终端状态成功之后，立刻查询数据库处于在线状态的终端数据,然后内存中的数据。更新状态与更新内存数据在同一个事务，查询操作需要保证能够读取到还未提交的更新操作。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="d:/WorkSpaces/Hexo/HexoBlog/source/_posts/%E8%AE%B0%E4%B8%80%E6%AC%A1-Transactional%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8%E7%9A%84%E6%8E%92%E9%94%99%E5%8E%86%E7%A8%8B/01Spring%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6.jpg">
+<meta property="og:image" content="d:/WorkSpaces/Hexo/HexoBlog/source/_posts/%E8%AE%B0%E4%B8%80%E6%AC%A1-Transactional%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8%E7%9A%84%E6%8E%92%E9%94%99%E5%8E%86%E7%A8%8B/02TransactionManager%E7%B1%BB%E7%BB%93%E6%9E%84.jpg">
+<meta property="og:updated_time" content="2019-06-11T14:11:04.769Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次事务不起作用的排错历程">
+<meta name="twitter:description" content="记一次@Transactional不起作用的排错历程问题描述服务端接口需提供接口，在web端将某个终端调为在线模式时，同时需要更新内存中在线的终端数据。 在更新终端状态成功之后，立刻查询数据库处于在线状态的终端数据,然后内存中的数据。更新状态与更新内存数据在同一个事务，查询操作需要保证能够读取到还未提交的更新操作。">
+<meta name="twitter:image" content="d:/WorkSpaces/Hexo/HexoBlog/source/_posts/%E8%AE%B0%E4%B8%80%E6%AC%A1-Transactional%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8%E7%9A%84%E6%8E%92%E9%94%99%E5%8E%86%E7%A8%8B/01Spring%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/06/11/记一次事务不起作用的排错历程/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>记一次事务不起作用的排错历程 | Hyman</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/Blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hyman</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/Blog/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/Blog/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/Blog/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-标签">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/Blog/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-关于">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/Blog/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/Blog/2019/06/11/记一次事务不起作用的排错历程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hyman Hu">
+      <meta itemprop="description" content="好心态才有好状态">
+      <meta itemprop="image" content="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/05/20190504135939.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hyman">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">记一次事务不起作用的排错历程
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-11 22:04:03 / 修改时间：22:11:04" itemprop="dateCreated datePublished" datetime="2019-06-11T22:04:03+08:00">2019-06-11</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/Blog/categories/Lesson-Learned/" itemprop="url" rel="index"><span itemprop="name">Lesson-Learned</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="记一次-Transactional不起作用的排错历程"><a href="#记一次-Transactional不起作用的排错历程" class="headerlink" title="记一次@Transactional不起作用的排错历程"></a>记一次@Transactional不起作用的排错历程</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>服务端接口需提供接口，在web端将某个终端调为在线模式时，同时需要更新内存中在线的终端数据。 在更新终端状态成功之后，立刻查询数据库处于在线状态的终端数据,然后内存中的数据。更新状态与更新内存数据在同一个事务，查询操作需要保证能够读取到还未提交的更新操作。</p>
+<a id="more"></a>
+<p>想到这应该是设计到事务的隔离性这块，因为之前对事务处理这块认识比较不足，就决定来科普下事务相关的知识点。</p>
+<p>但出门的第一步就跌了个大跟头，代码里的事务根本不起作用，@Transactional注解形同虚设，于是开始排错。</p>
+<p>代码是这样的(项目整合了SpringBoot+MyBatisPlus+Druid+Shiro)</p>
+<p>Controller层</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/switchstatus"</span>, method = RequestMethod.POST)</span><br><span class="line"><span class="meta">@RequiresPermissions</span>(<span class="string">"oilset:intelligentterminal:update"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ResponseResult <span class="title">switchStatus</span><span class="params">(String uid, Integer status)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (StrUtils.isEmpty(uid) || status == <span class="keyword">null</span>) <span class="keyword">return</span> ResponseResult.error(ResponseCode.requiredParamNotFound);</span><br><span class="line">    IntelligentterminalEntity entity = intelligentterminalService.selectById(uid);</span><br><span class="line">    <span class="keyword">if</span> (entity == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseResult.error(ResponseCode.recordNotFound);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (entity.getStatus() == status) &#123;</span><br><span class="line">        <span class="keyword">return</span> ResponseResult.error(ResponseCode.requestParamInvalid);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> success = intelligentterminalService.switchStatus(uid, status);</span><br><span class="line">    <span class="keyword">return</span> success ? ResponseResult.ok() : ResponseResult.error();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Service层</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">switchStatus</span><span class="params">(String uid, Integer status)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> success = <span class="keyword">false</span>;</span><br><span class="line">    success = <span class="keyword">this</span>.updateById(<span class="keyword">new</span> IntelligentterminalEntity(uid, status), SpringContextHolder.getLogInUserId());</span><br><span class="line">    <span class="keyword">if</span> (success) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> success;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>尝试手动rollback,事务可以回滚</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> DataSourceTransactionManager transactionManager;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">switchStatus</span><span class="params">(String uid, Integer status)</span> </span>&#123;</span><br><span class="line">    DefaultTransactionDefinition def = <span class="keyword">new</span> DefaultTransactionDefinition();</span><br><span class="line">    def.setName(<span class="string">"text-transaction"</span>);</span><br><span class="line">    def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);</span><br><span class="line">    TransactionStatus tsStatus = transactionManager.getTransaction(def);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">boolean</span> success = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        success = <span class="keyword">this</span>.updateById(<span class="keyword">new</span> IntelligentterminalEntity(uid, status), SpringContextHolder.getLogInUserId());</span><br><span class="line">        <span class="keyword">if</span> (success)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</span><br><span class="line">        transactionManager.rollback(tsStatus);</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> success;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>启动类加入了</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@EnableTransactionManagement</span><br></pre></td></tr></table></figure>
+<p>application.properties加入了</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spring.transaction.rollback-on-commit-failure=true</span><br></pre></td></tr></table></figure>
+<p>本来想的是，本次更新应该不会成功，可数据库偏偏就更新了，事务根本就没有回滚。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><ul>
+<li>事务用法不对，对@Transactional的用法存在问题</li>
+<li>项目搭建/配置存在问题，导致整个项目事务不起作用</li>
+<li>框架之间整合不兼容，导致事务不起作用</li>
+</ul>
+<h3 id="排错之一：SpringBoot事务管理用法错误"><a href="#排错之一：SpringBoot事务管理用法错误" class="headerlink" title="排错之一：SpringBoot事务管理用法错误"></a>排错之一：SpringBoot事务管理用法错误</h3><p>经过查阅各种资料，SpringBoot中声明式事务注意点有以下几点：</p>
+<ul>
+<li>@Transactional 只能应用到 public 方法才有效</li>
+<li>正确的设置@Transactional 的 rollbackFor 属性。默认情况下，如果在事务中抛出了未检查异常（继承自 RuntimeException 的异常）或者 Error，则 Spring 将回滚事务；除此之外，Spring 不会回滚事务。如果在事务中抛出其他类型的异常，并期望 Spring 能够回滚事务，可以指定 rollbackFor</li>
+<li>正确的设置@Transactional 的 propagation 属性</li>
+<li>避免 Spring 的 AOP 的自调用问题。在 Spring 的 AOP 代理下，只有目标方法由外部调用，目标方法才由 Spring 生成的代理对象来管理，这会造成自调用问题。若同一类中的其他没有@Transactional 注解的方法内部调用有@Transactional 注解的方法，有@Transactional 注解的方法的事务被忽略，不会发生回滚。</li>
+<li>抛出的异常不能被catch,或者catch后抛出其他异常</li>
+</ul>
+<p>检查代码后，所有这些条件都符合，可是就是没有生效呢。于是只能换个思路走走</p>
+<h3 id="排错之二：数据库引擎类型不支持"><a href="#排错之二：数据库引擎类型不支持" class="headerlink" title="排错之二：数据库引擎类型不支持"></a>排错之二：数据库引擎类型不支持</h3><p>数据库引擎要支持事务，如果是MySQL，注意表要使用支持事务的引擎，比如innodb，如果是myisam，事务是不起作用的。可检查发现表引擎确实是innodb。为了确认表引擎支持事务，我还重新在另一个项目里测试了表确实支持事务。那这到底是为啥呢，别的项目里可以，目前这个项目里就是不生效。于是怀疑是项目各框架之间整合出了问题。</p>
+<h3 id="排错之三：框架整合冲突"><a href="#排错之三：框架整合冲突" class="headerlink" title="排错之三：框架整合冲突"></a>排错之三：框架整合冲突</h3><p>第一步：<br>我重新建一张测试表, 然后操作这张表，其他代码与原代码一致。见证奇迹的时候到了,事务回滚了，欣喜若狂。代码如下</p>
+<p>Controller层</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/update"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ResponseResult <span class="title">update</span><span class="params">(String id, String name)</span> </span>&#123;</span><br><span class="line">    areaService.updateAreaById(id, name);</span><br><span class="line">    <span class="keyword">return</span> ResponseResult.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Service层</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">updateAreaById</span><span class="params">(String id, String name)</span> </span>&#123;</span><br><span class="line">        AreaEntity entity = <span class="keyword">new</span> AreaEntity();</span><br><span class="line">        entity.setAreaId(Integer.parseInt(id));</span><br><span class="line">        entity.setAreaName(name);</span><br><span class="line">        Integer integer = <span class="keyword">this</span>.baseMapper.updateById(entity);</span><br><span class="line">        <span class="keyword">if</span> (integer &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException();</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这就奇怪了,项目整合没啥问题,怎么操作终端的就是不回滚呢。好吧，我开始怀疑人生了。。。<br>于是我又用同样的操作，测试了用户更新，果然不负所望，跟操作终端的update一样的效果。我先冷静会。。。后来我各种神测试，在终端的Controller层调用Area的Service层，在终端Service层调用Area的Service层。突然，原来的测试Area的事务也不回滚了，这下彻底无解了。</p>
+<p>这期间实在头疼，脑子里各种回忆还有那种可能。好像项目中还有比较影响的就是Shiro了，于是灵机一动，百度一下”Shiro 使注解无效”。果然，有大牛给出了答案。<a href="https://blog.csdn.net/gnail_oug/article/details/80706205" target="_blank" rel="noopener">Spring Boot整合shiro后导致@Cacheable、@Transactional等注解失效的问题</a></p>
+<p>参考:<br>stackoverflow网站上的一些文章认为，Shiro框架初始化比Spring框架的某些部件早，导致使用@Autowire注入Shiro框架的某些类不能被Spring正确初始化。<br><a href="https://stackoverflow.com/questions/21512791/spring-service-with-cacheable-methods-gets-initialized-without-cache-when-autowi" target="_blank" rel="noopener">文章链接</a></p>
+<p>原来是shiro框架与spring框架的BeanFactory有所冲突，导致注入shiro框架的类不能被spring正确初始化。<br>于是修改了MyShiroRealm中的代码加入懒加载@Lazy</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Lazy</span></span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> SysUserService userService;</span><br></pre></td></tr></table></figure>
+<p>终于，奇迹发生了，事务回滚了，我欣喜若狂。但回头想想，不对呀，Realm只注入了SysUserService，怎么会影响终端的Service,于是又开始各种寻找，果然SysUserService里注入了B，B又注入了终端的Service，这就是一环套一环啊，之前测试Area也解释通了，我在终端Service注入了AreaService，导致也被带跑偏了。</p>
+<p>终于这个找了2天的问题终于得到了解答。</p>
+<h2 id="补充知识点"><a href="#补充知识点" class="headerlink" title="补充知识点"></a>补充知识点</h2><p><a href="https://www.ibm.com/developerworks/cn/java/j-master-spring-transactional-use/" target="_blank" rel="noopener">转自https://www.ibm.com/developerworks/cn/java/j-master-spring-transactional-use/</a></p>
+<p>Spring 事务管理分为编码式和声明式的两种方式。编程式事务指的是通过编码方式实现事务；声明式事务基于 AOP,将具体业务逻辑与事务处理解耦。声明式事务管理使业务代码逻辑不受污染, 因此在实际使用中声明式事务用的比较多</p>
+<h3 id="Transactional注解实现事务管理的步骤"><a href="#Transactional注解实现事务管理的步骤" class="headerlink" title="@Transactional注解实现事务管理的步骤"></a>@Transactional注解实现事务管理的步骤</h3><h4 id="事务配置信息"><a href="#事务配置信息" class="headerlink" title="事务配置信息"></a>事务配置信息</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">tx:annotation-driven</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"transactionManager"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"dataSource"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>或者使用 <strong>@EnableTransactionManagement</strong> 注解</p>
+<h4 id="将-Transactional-注解添加到合适的方法上，并设置合适的属性信息。"><a href="#将-Transactional-注解添加到合适的方法上，并设置合适的属性信息。" class="headerlink" title="将@Transactional 注解添加到合适的方法上，并设置合适的属性信息。"></a>将@Transactional 注解添加到合适的方法上，并设置合适的属性信息。</h4><p>@Transactional 注解的属性信息</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性名</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">name</td>
+<td style="text-align:left">当在配置文件中有多个 TransactionManager , 可以用该属性指定选择哪个事务管理器</td>
+</tr>
+<tr>
+<td style="text-align:center">propagation</td>
+<td style="text-align:left">事务的传播行为，默认值为 REQUIRED</td>
+</tr>
+<tr>
+<td style="text-align:center">isolation</td>
+<td style="text-align:left">事务的隔离度，默认值采用 DEFAULT</td>
+</tr>
+<tr>
+<td style="text-align:center">timeout</td>
+<td style="text-align:left">事务的超时时间，默认值为-1。如果超过该时间限制但事务还没有完成，则自动回滚事务</td>
+</tr>
+<tr>
+<td style="text-align:center">read-only</td>
+<td style="text-align:left">指定事务是否为只读事务，默认值为 false；为了忽略那些不需要事务的方法，比如读取数据，可以设置 read-only 为 true</td>
+</tr>
+<tr>
+<td style="text-align:center">rollback-for</td>
+<td style="text-align:left">用于指定能够触发事务回滚的异常类型，如果有多个异常类型需要指定，各类型之间可以通过逗号分隔</td>
+</tr>
+<tr>
+<td style="text-align:center">no-rollback-for</td>
+<td style="text-align:left">抛出 no-rollback-for 指定的异常类型，不回滚事务</td>
+</tr>
+</tbody>
+</table>
+<p>除此以外，@Transactional 注解也可以添加到类级别上。当把@Transactional 注解放在类级别时，表示所有该类的公共方法都配置相同的事务属性信息。见清单 2，EmployeeService 的所有方法都支持事务并且是只读。当类级别配置了@Transactional，方法级别也配置了@Transactional，应用程序会以方法级别的事务属性信息来管理事务，换言之，方法级别的事务属性信息会覆盖类级别的相关配置信息</p>
+<p><strong>read-only使用场景</strong></p>
+<p>从这一点设置的时间点开始（时间点a）到这个事务结束的过程中，其他事务所提交的数据，该事务将看不见！（查询中不会出现别人在时间点a之后提交的数据）</p>
+<p>如果你一次执行单条查询语句，则没有必要启用事务支持，数据库默认支持SQL执行期间的读一致性；<br>如果你一次执行多条查询语句，例如统计查询，报表查询，在这种场景下，多条查询SQL必须保证整体的读一致性，否则，在前条SQL查询之后，后条SQL查询之前，数据被其他用户改变，则该次整体的统计查询将会出现读数据不一致的状态，此时，应该启用事务支持。<br>【注意是一次执行多次查询来统计某些信息，这时为了保证数据整体的一致性，要用只读事务】</p>
+<p>在将事务设置成只读后，相当于将数据库设置成只读数据库，此时若要进行写的操作，会出现错误</p>
+<h3 id="Spring-的注解方式的事务实现机制"><a href="#Spring-的注解方式的事务实现机制" class="headerlink" title="Spring 的注解方式的事务实现机制"></a>Spring 的注解方式的事务实现机制</h3><p>在应用系统调用声明@Transactional 的目标方法时，Spring Framework 默认使用 AOP 代理，在代码运行时生成一个代理对象，根据@Transactional 的属性配置信息，这个代理对象决定该声明@Transactional 的目标方法是否由拦截器 TransactionInterceptor 来使用拦截，在 TransactionInterceptor 拦截时，会在在目标方法开始执行之前创建并加入事务，并执行目标方法的逻辑, 最后根据执行情况是否出现异常，利用抽象事务管理器</p>
+<p><img src="D:/WorkSpaces/Hexo/HexoBlog/source/_posts/%E8%AE%B0%E4%B8%80%E6%AC%A1-Transactional%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8%E7%9A%84%E6%8E%92%E9%94%99%E5%8E%86%E7%A8%8B/01Spring%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6.jpg" alt="image"></p>
+<p>Spring AOP 代理有 CglibAopProxy 和 JdkDynamicAopProxy 两种，上图 是以 CglibAopProxy 为例，对于 CglibAopProxy，需要调用其内部类的 DynamicAdvisedInterceptor 的 intercept 方法。对于 JdkDynamicAopProxy，需要调用其 invoke 方法。</p>
+<p>正如上文提到的，事务管理的框架是由抽象事务管理器 AbstractPlatformTransactionManager 来提供的，而具体的底层事务处理实现，由 PlatformTransactionManager 的具体实现类来实现，如事务管理器 DataSourceTransactionManager。不同的事务管理器管理不同的数据资源 DataSource，比如 DataSourceTransactionManager 管理 JDBC 的 Connection。</p>
+<p>PlatformTransactionManager，AbstractPlatformTransactionManager 及具体实现类关系下图所示</p>
+<p><img src="D:/WorkSpaces/Hexo/HexoBlog/source/_posts/%E8%AE%B0%E4%B8%80%E6%AC%A1-Transactional%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8%E7%9A%84%E6%8E%92%E9%94%99%E5%8E%86%E7%A8%8B/02TransactionManager%E7%B1%BB%E7%BB%93%E6%9E%84.jpg" alt="image"></p>
+<h3 id="Spring事务7种传播行为"><a href="#Spring事务7种传播行为" class="headerlink" title="Spring事务7种传播行为"></a>Spring事务7种传播行为</h3><p>所谓事务的传播行为是指，如果在开始当前事务之前，一个事务上下文已经存在，此时有若干选项可以指定一个事务性方法的执行行为。</p>
+<ul>
+<li><strong>PROPAGATION.REQUIRED</strong>：如果当前没有事务，就创建一个新事务，如果当前存在事务，就加入该事务，该设置是最常用的设置。<strong>Spring默认的传播行为</strong></li>
+<li><strong>PROPAGATION.SUPPORTS</strong>：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就以非事务执行。</li>
+<li><strong>PROPAGATION.MANDATORY</strong>：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常</li>
+<li><strong>PROPAGATION.REQUIRES_NEW</strong>：创建新事务，无论当前存不存在事务，都创建新事务</li>
+<li><strong>PROPAGATION.NOT_SUPPORTED</strong>：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起</li>
+<li><strong>PROPAGATION.NEVER</strong>：以非事务方式执行，如果当前存在事务，则抛出异常</li>
+<li><strong>PROPAGATION.NESTED</strong>：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与PROPAGATION_REQUIRED类似的操作</li>
+</ul>
+<h3 id="Spring事务隔离性"><a href="#Spring事务隔离性" class="headerlink" title="Spring事务隔离性"></a>Spring事务隔离性</h3><p><a href="https://www.cnblogs.com/huanongying/p/7021555.html" target="_blank" rel="noopener">示例地址</a></p>
+<p>隔离级别是指若干个并发的事务之间的隔离程度，与我们开发时候主要相关的场景包括：脏读取、重复读、幻读。</p>
+<ul>
+<li>DEFAULT ：这是默认值，表示使用底层数据库的默认隔离级别。对大部分数据库而言，通常这值就是： READ_COMMITTED 。 MyAQL查询(SELECT @@tx_isolation)</li>
+<li>READ_UNCOMMITTED ：该隔离级别表示一个事务可以读取另一个事务修改但还没有提交的数据。该级别不能防止脏读和不可重复读，因此很少使用该隔离级别。 </li>
+<li>READ_COMMITTED ：该隔离级别表示一个事务只能读取另一个事务已经提交的数据。该级别可以防止脏读，这也是大多数情况下的推荐值。 </li>
+<li>REPEATABLE_READ ：该隔离级别表示一个事务在整个过程中可以多次重复执行某个查询，并且每次返回的记录都相同。即使在多次查询之间有新增的数据满足该查询，这些新增的记录也会被忽略。该级别可以防止脏读和不可重复读。 </li>
+<li>SERIALIZABLE ：所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。但是这将严重影响程序的性能。通常情况下也不会用到该级别。 </li>
+</ul>
+<p>指定方法：通过使用 isolation 属性设置，例如：@Transactional(isolation = Isolation.DEFAULT)/</p>
+<p><strong>丢失更新</strong>：两个事务同时更新一行数据，最后一个事务的更新会覆盖掉第一个事务的更新，从而导致第一个事务更新的数据丢失，后果比较严重。一般是由于没加锁的原因造成的。<br><strong>脏读（Dirty reads）</strong>：一个事务A读取到了另一个事务B还没有提交的数据，并在此基础上进行操作。如果B事务rollback，那么A事务所读取到的数据就是不正确的，会带来问题。<br><strong>不可重复读（Non-repeatable reads）</strong>：在同一事务范围内读取两次相同的数据，所返回的结果不同。比如事务B第一次读数据后，事务A更新数据并commit，那么事务B第二次读取的数据就与第一次是不一样的。<br><strong>幻读（Phantom reads）</strong>：一个事务A读取到了另一个事务B新提交的数据。比如，事务A对一个表中所有行的数据按照某规则进行修改（整表操作），同时，事务B向表中插入了一行原始数据，那么后面事务A再对表进行操作时，会发现表中居然还有一行数据没有被修改，就像发生了幻觉，飘飘欲仙一样。<br>注意：不可重复读和幻读的区别是，不可重复读对应的表的操作是更改(UPDATE)，而幻读对应的表的操作是插入(INSERT)，两种的应对策略不一样。对于不可重复读，只需要采用行级锁防止该记录被更新即可，而对于幻读必须加个表级锁，防止在表中插入数据。有关锁的问题，下面会讨论。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/Blog/tags/经验总结/" rel="tag"># 经验总结</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Blog/2019/05/20/使用不同json包对象转Json过程中的大小写问题/" rel="next" title="使用不同json包对象转Json过程中的大小写问题">
+                <i class="fa fa-chevron-left"></i> 使用不同json包对象转Json过程中的大小写问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/05/20190504135939.jpg" alt="Hyman Hu">
+            
+              <p class="site-author-name" itemprop="name">Hyman Hu</p>
+              <div class="site-description motion-element" itemprop="description">好心态才有好状态</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/Blog/archives">
+                
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/Blog/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/Blog/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/hyman213" title="GitHub &rarr; https://github.com/hyman213" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#记一次-Transactional不起作用的排错历程"><span class="nav-number">1.</span> <span class="nav-text">记一次@Transactional不起作用的排错历程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">1.2.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#排错之一：SpringBoot事务管理用法错误"><span class="nav-number">1.2.1.</span> <span class="nav-text">排错之一：SpringBoot事务管理用法错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排错之二：数据库引擎类型不支持"><span class="nav-number">1.2.2.</span> <span class="nav-text">排错之二：数据库引擎类型不支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排错之三：框架整合冲突"><span class="nav-number">1.2.3.</span> <span class="nav-text">排错之三：框架整合冲突</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充知识点"><span class="nav-number">1.3.</span> <span class="nav-text">补充知识点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Transactional注解实现事务管理的步骤"><span class="nav-number">1.3.1.</span> <span class="nav-text">@Transactional注解实现事务管理的步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#事务配置信息"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">事务配置信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将-Transactional-注解添加到合适的方法上，并设置合适的属性信息。"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">将@Transactional 注解添加到合适的方法上，并设置合适的属性信息。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-的注解方式的事务实现机制"><span class="nav-number">1.3.2.</span> <span class="nav-text">Spring 的注解方式的事务实现机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring事务7种传播行为"><span class="nav-number">1.3.3.</span> <span class="nav-text">Spring事务7种传播行为</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring事务隔离性"><span class="nav-number">1.3.4.</span> <span class="nav-text">Spring事务隔离性</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hyman Hu</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">37k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">34 分钟</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/Blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/Blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/Blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/Blog/js/utils.js?v=7.1.1"></script>
+
+  <script src="/Blog/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/Blog/js/affix.js?v=7.1.1"></script>
+
+  <script src="/Blog/js/schemes/pisces.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/Blog/js/scrollspy.js?v=7.1.1"></script>
+<script src="/Blog/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/Blog/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
