@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>初识ELK日志分析系统 | Hyman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在上一家公司，服务器比较多，加上日志量又大，在实际过程中排查日志和定位问题几乎花费了大部分时间。新公司使用微服务架构，利用ELK搭建日志分析系统，于是网上搜集资料，开始了填坑之旅。。。最终本地搭建Filebeat–&amp;gt;LogStash–&amp;gt;Kafka–&amp;gt;ES–&amp;gt;Kibana，感觉ELK确实强大，跟之前一台台grep及awk, 实在轻松太多 总的来说就是服务本地的Filebeat">
+<meta name="keywords" content="SpringCloud，ELK">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识ELK日志分析系统">
+<meta property="og:url" content="http://yoursite.com/2019/10/27/初识ELK日志分析系统/index.html">
+<meta property="og:site_name" content="Hyman">
+<meta property="og:description" content="在上一家公司，服务器比较多，加上日志量又大，在实际过程中排查日志和定位问题几乎花费了大部分时间。新公司使用微服务架构，利用ELK搭建日志分析系统，于是网上搜集资料，开始了填坑之旅。。。最终本地搭建Filebeat–&amp;gt;LogStash–&amp;gt;Kafka–&amp;gt;ES–&amp;gt;Kibana，感觉ELK确实强大，跟之前一台台grep及awk, 实在轻松太多 总的来说就是服务本地的Filebeat">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/10/20191024221832.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/10/20191024221500.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/10/20191024221635.png">
+<meta property="og:updated_time" content="2019-10-27T13:49:49.209Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="初识ELK日志分析系统">
+<meta name="twitter:description" content="在上一家公司，服务器比较多，加上日志量又大，在实际过程中排查日志和定位问题几乎花费了大部分时间。新公司使用微服务架构，利用ELK搭建日志分析系统，于是网上搜集资料，开始了填坑之旅。。。最终本地搭建Filebeat–&amp;gt;LogStash–&amp;gt;Kafka–&amp;gt;ES–&amp;gt;Kibana，感觉ELK确实强大，跟之前一台台grep及awk, 实在轻松太多 总的来说就是服务本地的Filebeat">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/10/20191024221832.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hyman" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://avatars0.githubusercontent.com/u/47455530?v=4">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/Blog/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/Blog/">首页</a>
+        
+          <a class="main-nav-link" href="/Blog/archives">归档</a>
+        
+          <a class="main-nav-link" href="/Blog/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/Blog/" id="logo">Hyman</a>
+      </h1>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-初识ELK日志分析系统" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/Blog/2019/10/27/初识ELK日志分析系统/" class="article-date">
+  <time datetime="2019-10-27T13:38:07.000Z" itemprop="datePublished">2019-10-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/Blog/categories/技术/">技术</a>►<a class="article-category-link" href="/Blog/categories/技术/微服务/">微服务</a>►<a class="article-category-link" href="/Blog/categories/技术/微服务/日志分析/">日志分析</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      初识ELK日志分析系统
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <p>在上一家公司，服务器比较多，加上日志量又大，在实际过程中排查日志和定位问题几乎花费了大部分时间。新公司使用微服务架构，利用ELK搭建日志分析系统，于是网上搜集资料，开始了填坑之旅。。。最终本地搭建Filebeat–&gt;LogStash–&gt;Kafka–&gt;ES–&gt;Kibana，感觉ELK确实强大，跟之前一台台grep及awk, 实在轻松太多</p>
+<p>总的来说就是服务本地的Filebeat监控本地的日志文件，然后将日志实时输出到输出端(可能是Logstash，ES，Kafka)，最终保存到ES中，Kibana连接ES进行日志的分析及查找</p>
+<a id="more"></a>
+<p>[TOC]</p>
+<h2 id="ELK简介"><a href="#ELK简介" class="headerlink" title="ELK简介"></a>ELK简介</h2><p>ELK = Elasticsearch, Logstash, Kibana 是一套实时数据收集，存储，索引，检索，统计分析及可视化的解决方案。新增了一个FileBeat，它是一个轻量级的日志收集处理工具(Agent)，Filebeat占用资源少，适合于在各个服务器上搜集日志后传输给Logstash，官方也推荐此工具。</p>
+<h3 id="为什么用到ELK"><a href="#为什么用到ELK" class="headerlink" title="为什么用到ELK"></a>为什么用到ELK</h3><p>一般大型系统是一个分布式部署的架构，不同的服务模块部署在不同的服务器上，问题出现时，大部分情况需要根据问题暴露的关键信息，定位到具体的服务器和服务模块，构建一套集中式日志系统，可以提高定位问题的效率。</p>
+<p>一个完整的集中式日志系统，需要包含以下几个主要特点：</p>
+<ul>
+<li>收集－能够采集多种来源的日志数据</li>
+<li>传输－能够稳定的把日志数据传输到中央系统</li>
+<li>存储－如何存储日志数据</li>
+<li>分析－可以支持 UI 分析</li>
+<li>警告－能够提供错误报告，监控机制</li>
+</ul>
+<p>ELK提供了一整套解决方案，并且都是开源软件，之间互相配合使用，完美衔接，高效的满足了很多场合的应用。目前主流的一种日志系统。</p>
+<h3 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a>ELK</h3><p><strong>Elasticsearch</strong>是个开源分布式搜索引擎，提供搜集、分析、存储数据三大功能。它的特点有：分布式，零配置，自动发现，索引自动分片，索引副本机制，restful风格接口，多数据源，自动搜索负载等。</p>
+<p><strong>Logstash</strong> 主要是用来日志的搜集、分析、过滤日志的工具，支持大量的数据获取方式。一般工作方式为c/s架构，client端安装在需要收集日志的主机上，server端负责将收到的各节点日志进行过滤、修改等操作在一并发往elasticsearch上去。</p>
+<p><strong>Kibana</strong> 也是一个开源和免费的工具，Kibana可以为 Logstash 和 ElasticSearch 提供的日志分析友好的 Web 界面，可以帮助汇总、分析和搜索重要数据日志。</p>
+<p>Filebeat隶属于Beats。目前Beats包含四种工具：</p>
+<ol>
+<li><ol>
+<li>Packetbeat（搜集网络流量数据）</li>
+<li>Topbeat（搜集系统、进程和文件系统级别的 CPU 和内存使用情况等数据）</li>
+<li>Filebeat（搜集文件数据）</li>
+<li>Winlogbeat（搜集 Windows 事件日志数据）</li>
+</ol>
+</li>
+</ol>
+<h3 id="官方文档"><a href="#官方文档" class="headerlink" title="官方文档"></a>官方文档</h3><p>Filebeat：</p>
+<p><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/cn/products/beats/filebeat" target="_blank" rel="noopener">https://www.elastic.co/cn/products/beats/filebeat</a><br><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/guide/en/beats/filebeat/5.6/index.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/beats/filebeat/5.6/index.html</a></p>
+<p>Logstash：<br><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/cn/products/logstash" target="_blank" rel="noopener">https://www.elastic.co/cn/products/logstash</a><br><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/guide/en/logstash/5.6/index.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/logstash/5.6/index.html</a></p>
+<p>Kibana:</p>
+<p><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/cn/products/kibana" target="_blank" rel="noopener">https://www.elastic.co/cn/products/kibana</a></p>
+<p><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/guide/en/kibana/5.5/index.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/kibana/5.5/index.html</a></p>
+<p>Elasticsearch：<br><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/cn/products/elasticsearch" target="_blank" rel="noopener">https://www.elastic.co/cn/products/elasticsearch</a><br><a href="https://link.zhihu.com/?target=https%3A//www.elastic.co/guide/en/elasticsearch/reference/5.6/index.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index.html</a></p>
+<p>elasticsearch中文社区：<br><a href="https://link.zhihu.com/?target=https%3A//elasticsearch.cn/" target="_blank" rel="noopener">https://elasticsearch.cn/</a></p>
+<h2 id="安装搭建-简易版"><a href="#安装搭建-简易版" class="headerlink" title="安装搭建(简易版)"></a>安装搭建(简易版)</h2><p><strong>使用同一个版本号!!!</strong></p>
+<h3 id="Elasticsearch"><a href="#Elasticsearch" class="headerlink" title="Elasticsearch"></a>Elasticsearch</h3><p><a href="https://www.elastic.co/cn/downloads/elasticsearch" target="_blank" rel="noopener">下载地址</a></p>
+<ul>
+<li>Download and unzip Elasticsearch</li>
+<li>Run bin/elasticsearch (or bin\elasticsearch.bat on Windows)</li>
+<li>Run curl <a href="http://localhost:9200/" target="_blank" rel="noopener">http://localhost:9200/</a> or Invoke-RestMethod <a href="http://localhost:9200" target="_blank" rel="noopener">http://localhost:9200</a> with PowerShell</li>
+</ul>
+<p>Elasticsearch 也是使用 Java 编写的，它的内部使用 Lucene 做索引与搜索</p>
+<p><strong>启动脚本</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line">export JAVA_HOME=/data/service/jdk1.8.0_192</span><br><span class="line">/data/service/elasticsearch-7.4.0/bin/elasticsearch</span><br></pre></td></tr></table></figure>
+<h3 id="Logstach"><a href="#Logstach" class="headerlink" title="Logstach"></a>Logstach</h3><p><a href="https://www.elastic.co/cn/downloads/logstash" target="_blank" rel="noopener">下载地址</a></p>
+<ul>
+<li>Download and unzip Logstash</li>
+<li>Prepare a logstash.conf config file</li>
+<li>Run <code>bin/logstash -f logstash.conf</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">在 /usr/local 目录下解压：</span><br><span class="line">tar -zxvf  logstash-7.4.0.tar.gz</span><br><span class="line">进入解压后的目录：</span><br><span class="line">cd /usr/local/logstash-7.4.0/bin</span><br><span class="line">新增配置文件：</span><br><span class="line">vim logstash.conf</span><br><span class="line">增加：</span><br><span class="line">input&#123;</span><br><span class="line">    file&#123;</span><br><span class="line">      path =&gt; ["/var/log/*.log"]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">output&#123;</span><br><span class="line">   elasticsearch&#123;</span><br><span class="line">       hosts =&gt; ["127.0.0.1:9200"]</span><br><span class="line">       index =&gt; "logstash__log"</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Filebeat"><a href="#Filebeat" class="headerlink" title="Filebeat"></a>Filebeat</h3><p><a href>下载地址</a></p>
+<ul>
+<li>Download and unzip Filebeat</li>
+<li>Edit the filebeat.yml configuration file</li>
+<li>Start the daemon by running <code>sudo ./filebeat -e -c filebeat.yml</code></li>
+</ul>
+<p><strong>修改filebeat.yml</strong></p>
+<ul>
+<li>输出到ES</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/data/log/path1/**/*.log</span></span><br><span class="line"><span class="attr">  fields:</span></span><br><span class="line"><span class="attr">    topic:</span> <span class="string">log1-app</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">/data/log/path-api-*/logstash.log</span></span><br><span class="line"><span class="attr">  fields:</span></span><br><span class="line"><span class="attr">    topic:</span> <span class="string">microservice</span></span><br><span class="line">    </span><br><span class="line"><span class="string">filebeat.config.modules:</span></span><br><span class="line">  <span class="comment"># Glob pattern for configuration loading</span></span><br><span class="line"><span class="attr">  path:</span> <span class="string">$&#123;path.config&#125;/modules.d/*.yml</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Set to true to enable config reloading</span></span><br><span class="line">  <span class="string">reload.enabled:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Period on which files under path should be checked for changes</span></span><br><span class="line">  <span class="string">reload.period:</span> <span class="number">60</span><span class="string">s</span></span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"><span class="comment">#-------------------------- Elasticsearch output ------------------------------</span></span><br><span class="line"><span class="string">output.elasticsearch:</span></span><br><span class="line"><span class="attr"> hosts:</span> <span class="string">["localhost:9200"]</span></span><br></pre></td></tr></table></figure>
+<p>此处简单的将出口定义为ES，实际上可能是Logstash</p>
+<ul>
+<li>输出到Logstash</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#----------------------------- Logstash output --------------------------------</span></span><br><span class="line"><span class="string">output.logstash:</span></span><br><span class="line">  <span class="comment"># The Logstash hosts</span></span><br><span class="line"><span class="attr">  hosts:</span> <span class="string">["localhost:5044"]</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Optional SSL. By default is off.</span></span><br><span class="line">  <span class="comment"># List of root certificates for HTTPS server verifications</span></span><br><span class="line">  <span class="comment">#ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Certificate for SSL client authentication</span></span><br><span class="line">  <span class="comment">#ssl.certificate: "/etc/pki/client/cert.pem"</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Client Certificate Key</span></span><br><span class="line">  <span class="comment">#ssl.key: "/etc/pki/client/cert.key"</span></span><br></pre></td></tr></table></figure>
+<p>启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./filebeat -e -c filebeat.yml -d "publish"</span><br></pre></td></tr></table></figure>
+<h3 id="Kibana"><a href="#Kibana" class="headerlink" title="Kibana"></a>Kibana</h3><p>从6.0.0开始，Kibana 只支持64位操作系统。</p>
+<p>Linux64位包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Linux</span></span><br><span class="line">wget https://artifacts.elastic.co/downloads/kibana/kibana-6.0.0-linux-x86_64.tar.gz</span><br><span class="line">sha1sum kibana-6.0.0-linux-x86_64.tar.gz </span><br><span class="line">tar -xzf kibana-6.0.0-linux-x86_64.tar.gz</span><br><span class="line">cd kibana/ </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> windows</span></span><br><span class="line">下载zip包，解压缩</span><br><span class="line">https://artifacts.elastic.co/downloads/kibana/kibana-6.0.0-windows-x86_64.zip</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> docker</span></span><br><span class="line">docker pull docker.elastic.co/kibana/kibana:6.0.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动Kibana</span></span><br><span class="line">./bin/kibana</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置文件路径</span></span><br><span class="line"><span class="meta">$</span><span class="bash">KIBANA_HOME/config/kibana.yml</span></span><br></pre></td></tr></table></figure>
+<p><strong>配置Kibana</strong></p>
+<p>Kibana 默认配置 <code>localhost:5601</code>, 配置文件路径: <code>$KIBANA_HOME/config/kibana.yml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server.host: "x.x.x.x"</span><br><span class="line">server.port: 5601</span><br><span class="line">elasticsearch.url: "http://x.x.x.x:9200"</span><br></pre></td></tr></table></figure>
+<p><strong>访问</strong></p>
+<p><code>http://YOURDOMAIN.com:5601</code></p>
+<p><code>localhost:5601/status</code> 来访问 Kibana 的服务器状态页，状态页展示了服务器资源使用情况和已安装插件列表。</p>
+<p><strong>启动脚本</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">/data/service/kibana-7.4.0/bin/kibana -c /data/service/kibana-7.4.0/config/kibana.yml</span><br></pre></td></tr></table></figure>
+<p><strong>加载示例数据</strong></p>
+<ul>
+<li>下载、解压示例文件</li>
+<li>建立数据集映射</li>
+</ul>
+<p>shakespeare(最新7.4版本需要去掉doc节点)</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">PUT /shakespeare</span><br><span class="line">&#123;</span><br><span class="line"> "mappings": &#123;</span><br><span class="line">  "doc": &#123;</span><br><span class="line">   "properties": &#123;</span><br><span class="line">    "speaker": &#123;"type": "keyword"&#125;,</span><br><span class="line">    "play_name": &#123;"type": "keyword"&#125;,</span><br><span class="line">    "line_id": &#123;"type": "integer"&#125;,</span><br><span class="line">    "speech_number": &#123;"type": "integer"&#125;</span><br><span class="line">   &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">PUT /shakespeare</span><br><span class="line">&#123;</span><br><span class="line"> "mappings": &#123;</span><br><span class="line">   "properties": &#123;</span><br><span class="line">    "speaker": &#123;"type": "keyword"&#125;,</span><br><span class="line">    "play_name": &#123;"type": "keyword"&#125;,</span><br><span class="line">    "line_id": &#123;"type": "integer"&#125;,</span><br><span class="line">    "speech_number": &#123;"type": "integer"&#125;</span><br><span class="line">   &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>log</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PUT /logstash-2015.05.18</span><br><span class="line">&#123;</span><br><span class="line">  "mappings": &#123;</span><br><span class="line">    "log": &#123;</span><br><span class="line">      "properties": &#123;</span><br><span class="line">        "geo": &#123;</span><br><span class="line">          "properties": &#123;</span><br><span class="line">            "coordinates": &#123;</span><br><span class="line">              "type": "geo_point"</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>用 Elasticsearch bulk API 来加载数据集</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/bank/account/_bulk?pretty' --data-binary @accounts.json</span><br><span class="line">curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/shakespeare/doc/_bulk?pretty' --data-binary @shakespeare_6.0.json</span><br><span class="line">curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/_bulk?pretty' --data-binary @logs.jsonl</span><br></pre></td></tr></table></figure>
+<ul>
+<li>验证</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_cat/indices?v</span><br></pre></td></tr></table></figure>
+<h2 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h2><h3 id="FileBeat"><a href="#FileBeat" class="headerlink" title="FileBeat"></a>FileBeat</h3><p><img src="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/10/20191024221832.png" alt></p>
+<p>Filebeat由两个主要组件组成：prospectors 和 harvesters。这两个组件协同工作将文件变动发送到指定的输出中。</p>
+<p><strong>Harvester（收割机）：</strong>负责读取单个文件内容。每个文件会启动一个Harvester，每个Harvester会逐行读取各个文件，并将文件内容发送到制定输出中。Harvester负责打开和关闭文件，意味在Harvester运行的时候，文件描述符处于打开状态，如果文件在收集中被重命名或者被删除，Filebeat会继续读取此文件。所以在Harvester关闭之前，磁盘不会被释放。默认情况filebeat会保持文件打开的状态，直到达到<code>close_inactive</code>（如果此选项开启，filebeat会在指定时间内将不再更新的文件句柄关闭，时间从harvester读取最后一行的时间开始计时。若文件句柄被关闭后，文件发生变化，则会启动一个新的harvester。关闭文件句柄的时间不取决于文件的修改时间，若此参数配置不当，则可能发生日志不实时的情况，由scan_frequency参数决定，默认10s。Harvester使用内部时间戳来记录文件最后被收集的时间。例如：设置5m，则在Harvester读取文件的最后一行之后，开始倒计时5分钟，若5分钟内文件无变化，则关闭文件句柄。默认5m）</p>
+<p><strong>Prospector（勘测者）：</strong>负责管理Harvester并找到所有读取源</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">filebeat.inputs:</span></span><br><span class="line"><span class="attr">- type:</span> <span class="string">log</span></span><br><span class="line"><span class="attr">  enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  paths:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="bullet">-</span> <span class="string">/apps/logs/*/info.log</span></span><br></pre></td></tr></table></figure>
+<p>Prospector会找到/apps/logs/*目录下的所有info.log文件，并为每个文件启动一个Harvester。Prospector会检查每个文件，看Harvester是否已经启动，是否需要启动，或者文件是否可以忽略。若Harvester关闭，只有在文件大小发生变化的时候Prospector才会执行检查。只能检测本地的文件。</p>
+<p><strong>Filebeat如何记录文件状态：</strong></p>
+<p>将文件状态记录在文件中（默认在/var/lib/filebeat/registry）。此状态可以记住Harvester收集文件的偏移量。若连接不上输出设备，如ES等，filebeat会记录发送前的最后一行，并再可以连接的时候继续发送。Filebeat在运行的时候，Prospector状态会被记录在内存中。Filebeat重启的时候，利用registry记录的状态来进行重建，用来还原到重启之前的状态。每个Prospector会为每个找到的文件记录一个状态，对于每个文件，Filebeat存储唯一标识符以检测文件是否先前被收集。</p>
+<p><strong>Filebeat如何保证事件至少被输出一次：</strong></p>
+<p>Filebeat之所以能保证事件至少被传递到配置的输出一次，没有数据丢失，是因为filebeat将每个事件的传递状态保存在文件中。在未得到输出方确认时，filebeat会尝试一直发送，直到得到回应。若filebeat在传输过程中被关闭，则不会再关闭之前确认所有时事件。任何在filebeat关闭之前为确认的时间，都会在filebeat重启之后重新发送。这可确保至少发送一次，但有可能会重复。可通过设置<code>shutdown_timeout</code> 参数来设置关闭之前的等待事件回应的时间（默认禁用）。</p>
+<h3 id="Logstash"><a href="#Logstash" class="headerlink" title="Logstash"></a>Logstash</h3><p>Logstash事件处理有三个阶段：inputs → filters → outputs。是一个接收，处理，转发日志的工具。支持系统日志，webserver日志，错误日志，应用日志，总之包括所有可以抛出来的日志类型。</p>
+<p>作者：蛙课网</p>
+<p>链接：</p>
+<p>来源：知乎</p>
+<p>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+<p><strong>Input：输入数据到logstash。</strong></p>
+<p>一些常用的输入为：</p>
+<p>file：从文件系统的文件中读取，类似于tail -f命令</p>
+<p>syslog：在514端口上监听系统日志消息，并根据RFC3164标准进行解析</p>
+<p>redis：从redis service中读取</p>
+<p>beats：从filebeat中读取</p>
+<p><strong>Filters：数据中间处理，对数据进行操作。</strong></p>
+<p>一些常用的过滤器为：</p>
+<p>grok：解析任意文本数据，Grok 是 Logstash 最重要的插件。它的主要作用就是将文本格式的字符串，转换成为具体的结构化的数据，配合正则表达式使用。内置120多个解析语法。</p>
+<p>官方提供的grok表达式：<a href="https://link.zhihu.com/?target=https%3A//github.com/logstash-plugins/logstash-patterns-core/tree/master/patterns" target="_blank" rel="noopener">https://github.com/logstash-plugins/logstash-patterns-core/tree/master/patterns</a><br>grok在线调试：<a href="https://link.zhihu.com/?target=https%3A//grokdebug.herokuapp.com/" target="_blank" rel="noopener">https://grokdebug.herokuapp.com/</a></p>
+<p>mutate：对字段进行转换。例如对字段进行删除、替换、修改、重命名等。</p>
+<p>drop：丢弃一部分events不进行处理。</p>
+<p>clone：拷贝 event，这个过程中也可以添加或移除字段。</p>
+<p>geoip：添加地理信息(为前台kibana图形化展示使用)</p>
+<p><strong>Outputs：outputs是logstash处理管道的最末端组件。</strong>一个event可以在处理过程中经过多重输出，但是一旦所有的outputs都执行结束，这个event也就完成生命周期。</p>
+<p>一些常见的outputs为：</p>
+<p>elasticsearch：可以高效的保存数据，并且能够方便和简单的进行查询。</p>
+<p>file：将event数据保存到文件中。</p>
+<p>graphite：将event数据发送到图形化组件中，一个很流行的开源存储图形化展示的组件。</p>
+<p><strong>Codecs：codecs 是基于数据流的过滤器，它可以作为input，output的一部分配置</strong>。Codecs可以帮助你轻松的分割发送过来已经被序列化的数据。</p>
+<h3 id="Elasticsearch-1"><a href="#Elasticsearch-1" class="headerlink" title="Elasticsearch"></a>Elasticsearch</h3><h3 id="Kibana-1"><a href="#Kibana-1" class="headerlink" title="Kibana"></a>Kibana</h3><p>Kibana 是一款开源的数据分析和可视化平台，可以使用 Kibana 对 Elasticsearch 索引中的数据进行搜索、查看、交互操作。</p>
+<h2 id="ELK架构"><a href="#ELK架构" class="headerlink" title="ELK架构"></a>ELK架构</h2><p><strong>架构一</strong></p>
+<p><img src="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/10/20191024221500.png" alt></p>
+<p>这是最简单的一种ELK架构方式。优点是搭建简单，易于上手。缺点是Logstash耗资源较大，运行占用CPU和内存高。另外没有消息队列缓存，存在数据丢失隐患。</p>
+<p>此架构由Logstash分布于各个节点上搜集相关日志、数据，并经过分析、过滤后发送给远端服务器上的Elasticsearch进行存储。Elasticsearch将数据以分片的形式压缩存储并提供多种API供用户查询，操作。用户亦可以更直观的通过配置Kibana Web方便的对日志查询，并根据数据生成报表。</p>
+<p><strong>架构二</strong></p>
+<p><img src="https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/10/20191024221635.png" alt></p>
+<p>此种架构引入了消息队列机制，位于各个节点上的Logstash Agent（FileBeat）（先将数据/日志传递给Kafka（或者Redis），并将队列中消息或数据间接传递给Logstash，Logstash过滤、分析后将数据传递给Elasticsearch存储。最后由Kibana将日志和数据呈现给用户。因为引入了Kafka（或者Redis）,所以即使远端Logstash server因故障停止运行，数据将会先被存储下来，从而避免数据丢失。</p>
+<h2 id="SpringBoot项目集成"><a href="#SpringBoot项目集成" class="headerlink" title="SpringBoot项目集成"></a>SpringBoot项目集成</h2><p>引入依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.ctrip.framework.apollo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>apollo-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-sleuth<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>net.logstash.logback<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>logstash-logback-encoder<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ch.qos.logback<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>logback-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;logback.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ch.qos.logback<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>logback-classic<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;logback.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;slf4j.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>启动类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="meta">@EnableApolloConfig</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(Application.class, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>logback</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">scope</span>=<span class="string">"context"</span> <span class="attr">name</span>=<span class="string">"logPath4Context"</span> <span class="attr">value</span>=<span class="string">"$&#123;loggerRoot&#125;/$&#123;loggerAppName&#125;"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">scope</span>=<span class="string">"context"</span> <span class="attr">name</span>=<span class="string">"logPattern4Context"</span> <span class="attr">value</span>=<span class="string">"[%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;] - %level - %logger&#123;10&#125; - $&#123;loggerAppName&#125; - %class[%line] - %X&#123;X-B3-TraceId&#125; - %X&#123;X-B3-SpanId&#125; - %thread - %msg%n"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">scope</span>=<span class="string">"context"</span> <span class="attr">name</span>=<span class="string">"loggerLevel4Context"</span> <span class="attr">value</span>=<span class="string">"$&#123;logLevel&#125;&#125;"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">"HELLO-APPENDER"</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.RollingFileAppender"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;logPath4Context&#125;/application.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;logPath4Context&#125;/archive/hello.log.%d&#123;yyyyMMdd&#125;.gz<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>7<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>$&#123;logPattern4Context&#125;<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">charset</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">charset</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--  logstash  --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">"LOGSTASH-APPENDER"</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.RollingFileAppender"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;logPath4Context&#125;/logstash.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;logPath4Context&#125;/archive/logstash.log.%d&#123;yyyyMMddHH&#125;.gz<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>72<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">class</span>=<span class="string">"net.logstash.logback.encoder.LogstashEncoder"</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">includeContext</span>&gt;</span>false<span class="tag">&lt;/<span class="name">includeContext</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">customFields</span>&gt;</span>&#123;"app_name":"$&#123;loggerAppName&#125;"&#125;<span class="tag">&lt;/<span class="name">customFields</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">"HELLO-LOGGER"</span> <span class="attr">additivity</span>=<span class="string">"false"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">level</span> <span class="attr">value</span>=<span class="string">"$&#123;loggerLevel4Context&#125;"</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"HELLO-APPENDER"</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"ERROR-APPENDER"</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"LOGSTASH-APPENDER"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li><a href="https://www.elastic.co/guide/cn/kibana/current/index.html" target="_blank" rel="noopener">Kibana 用户手册(中文)</a></li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/intro.html" target="_blank" rel="noopener">Elasticsearch权威指南</a></li>
+<li><a href="https://blog.csdn.net/tanqian351/article/details/83827583" target="_blank" rel="noopener">ELK搭建全过程</a></li>
+<li><a href="https://www.cnblogs.com/wangzhuxing/p/9678578.html" target="_blank" rel="noopener">ES系列十八、FileBeat发送日志到logstash、ES、多个output过滤配置</a></li>
+<li><a href="https://www.zhihu.com/question/338932215/answer/777380560" target="_blank" rel="noopener">ELK可以干什么呢？</a></li>
+<li><a href="https://blog.csdn.net/weixin_44766368/article/details/102550216" target="_blank" rel="noopener">ELK7.4+filebeat+Redis分析nginx服务访问日志</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/10/27/初识ELK日志分析系统/" data-id="ck291w3lu000iigkplqjf3pf7" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/Blog/tags/SpringCloud，ELK/">SpringCloud，ELK</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+ <script src="/Blog/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/Blog/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+  
+    <a href="/Blog/2019/10/27/初识网关Zuul/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">初识网关Zuul</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ELK简介"><span class="toc-number">1.</span> <span class="toc-text">ELK简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么用到ELK"><span class="toc-number">1.1.</span> <span class="toc-text">为什么用到ELK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ELK"><span class="toc-number">1.2.</span> <span class="toc-text">ELK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#官方文档"><span class="toc-number">1.3.</span> <span class="toc-text">官方文档</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装搭建-简易版"><span class="toc-number">2.</span> <span class="toc-text">安装搭建(简易版)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Elasticsearch"><span class="toc-number">2.1.</span> <span class="toc-text">Elasticsearch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Logstach"><span class="toc-number">2.2.</span> <span class="toc-text">Logstach</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Filebeat"><span class="toc-number">2.3.</span> <span class="toc-text">Filebeat</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kibana"><span class="toc-number">2.4.</span> <span class="toc-text">Kibana</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原理解析"><span class="toc-number">3.</span> <span class="toc-text">原理解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#FileBeat"><span class="toc-number">3.1.</span> <span class="toc-text">FileBeat</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Logstash"><span class="toc-number">3.2.</span> <span class="toc-text">Logstash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Elasticsearch-1"><span class="toc-number">3.3.</span> <span class="toc-text">Elasticsearch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kibana-1"><span class="toc-number">3.4.</span> <span class="toc-text">Kibana</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ELK架构"><span class="toc-number">4.</span> <span class="toc-text">ELK架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SpringBoot项目集成"><span class="toc-number">5.</span> <span class="toc-text">SpringBoot项目集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文章"><span class="toc-number">6.</span> <span class="toc-text">参考文章</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 Hyman Hu&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;hyman213@163.com
+    </div>
+  </div>
+</footer>
+ <script src="/Blog/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/Blog/" class="mobile-nav-link">首页</a>
+  
+    <a href="/Blog/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/Blog/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/Blog/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/Blog/fancybox/jquery.fancybox.css">
+  <script src="/Blog/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/Blog/js/script.js"></script>
+<script src="/Blog/js/elevator.js"></script>
+  </div>
+</body>
+</html>
