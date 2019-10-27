@@ -2,8 +2,9 @@
 title: 使用PicGo和GitHub搭建个人图床
 date: 2019-05-03 21:50:00
 tags: Hexo博客
-category: 使用技巧总结记录
-toc_number: false
+category: 
+  - 技术
+  - 归纳总结
 ---
 
 
@@ -12,15 +13,15 @@ toc_number: false
 
 <!--more-->
 
-## 1.GitHub仓库设置
+## GitHub仓库设置
 
-### 1-1.新建仓库
+### 新建仓库
 
 仓库选择public
 
 ![](https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/20190501225624.png)
 
-### 1-2.创建token
+### 创建token
 
 
 
@@ -36,13 +37,13 @@ token用于后面PicGo操作Github仓库。
 
 **注意：**这个token生成后只会显示一次！你要把这个token复制一下存到其他地方以备以后要用。
 
-## 2.PicGo
+## PicGo
 
 PicGo是一款免费开源的图片上传和管理工具。
 
 [官方网站https://molunerfinn.com/PicGo/](https://molunerfinn.com/PicGo/)
 
-### 2-1.PicGo应用说明
+### PicGo应用说明
 
 PicGo在上传图片之后自动会将图片链接复制到你的剪贴板里，可选5种复制的链接格式。
 
@@ -57,7 +58,7 @@ PicGo目前支持了,目前最新版本为2.1.0
 - 阿里云OSS v1.6.0
 - Imgur v1.6.0
 
-### 2-2.下载安装PicGo
+### 下载安装PicGo
 
 按照PicGo官网[文档说明](https://picgo.github.io/PicGo-Doc/zh/guide/#%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85)下载安装PicGo
 
@@ -65,7 +66,7 @@ macOS用户请下载最新版本的`dmg`文件，windows用户请下载最新版
 
 
 
-### 2-3. 快速上手
+### 快速上手
 
 - Mini窗口上传
 
@@ -77,7 +78,7 @@ macOS用户请下载最新版本的`dmg`文件，windows用户请下载最新版
 
 - 主窗口上传
 
-### 2-4.配置说明
+### 配置说明
 
 PicGo配置文件在不同系统里是不一样的
 
@@ -110,7 +111,7 @@ PicGo配置文件在不同系统里是不一样的
 
 ![](https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/20190501223804.png)
 
-### 2-5. 配置GitHub图床
+### 配置GitHub图床
 
 ![](https://raw.githubusercontent.com/hyman213/FigureBed/master/2019/20190501222516.jpg)
 
