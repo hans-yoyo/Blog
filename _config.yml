@@ -4,8 +4,9 @@
 
 # Site-站点设置项
 title: Hyman # 博客标题
-subtitle: # 博客副标题
-description: 好心态才有好状态 # 博客描述
+subtitle: Hyman的个人博客 # 博客副标题
+description: 涉猎的主要编程语言为JAVA、Python，以及个人生活中的一些感悟 # 博客描述
+keywords: "Java, Python, Spring, SpringBoot, SpringCloud"
 author: Hyman Hu # 作者
 language: zh-CN # 语言
 timezone: Asia/Shanghai # 时区
