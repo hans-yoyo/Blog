@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>mockjs新手入门 | Hyman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Mock.js 是一款前端开发中拦截Ajax请求再生成随机数据响应的工具.可以用来模拟服务器响应. 优点是非常简单方便, 无侵入性, 基本覆盖常用的接口数据类型.">
+<meta name="keywords" content="mock.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mockjs新手入门">
+<meta property="og:url" content="http://yoursite.com/2019/12/04/mockjs新手入门/index.html">
+<meta property="og:site_name" content="Hyman">
+<meta property="og:description" content="Mock.js 是一款前端开发中拦截Ajax请求再生成随机数据响应的工具.可以用来模拟服务器响应. 优点是非常简单方便, 无侵入性, 基本覆盖常用的接口数据类型.">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-04T15:22:27.597Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mockjs新手入门">
+<meta name="twitter:description" content="Mock.js 是一款前端开发中拦截Ajax请求再生成随机数据响应的工具.可以用来模拟服务器响应. 优点是非常简单方便, 无侵入性, 基本覆盖常用的接口数据类型.">
+  
+    <link rel="alternate" href="/atom.xml" title="Hyman" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://avatars0.githubusercontent.com/u/47455530?v=4">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/Blog/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/Blog/">首页</a>
+        
+          <a class="main-nav-link" href="/Blog/archives">归档</a>
+        
+          <a class="main-nav-link" href="/Blog/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/Blog/" id="logo">Hyman</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/Blog/" id="subtitle">Hyman的个人博客</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-mockjs新手入门" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/Blog/2019/12/04/mockjs新手入门/" class="article-date">
+  <time datetime="2019-12-04T15:20:24.000Z" itemprop="datePublished">2019-12-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/Blog/categories/技术/">技术</a>►<a class="article-category-link" href="/Blog/categories/技术/测试/">测试</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      mockjs新手入门
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <p><a href="http://mockjs.com/" target="_blank" rel="noopener">Mock.js</a> 是一款前端开发中拦截<code>Ajax</code>请求再生成随机数据响应的工具.可以用来模拟服务器响应. 优点是非常简单方便, 无侵入性, 基本覆盖常用的接口数据类型.</p>
+<a id="more"></a>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>使用npm安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install mockjs</span><br></pre></td></tr></table></figure>
+<p>或者引入<code>js</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"http://mockjs.com/dist/mock.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>使用</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 Mock</span></span><br><span class="line"><span class="keyword">var</span> Mock = <span class="built_in">require</span>(<span class="string">'mockjs'</span>)</span><br><span class="line"><span class="keyword">var</span> data = Mock.mock(&#123;</span><br><span class="line">    <span class="comment">// 属性 list 的值是一个数组，其中含有 1 到 10 个元素</span></span><br><span class="line">    <span class="string">'list|1-10'</span>: [&#123;</span><br><span class="line">        <span class="comment">// 属性 id 是一个自增数，起始值为 1，每次增 1</span></span><br><span class="line">        <span class="string">'id|+1'</span>: <span class="number">1</span></span><br><span class="line">    &#125;]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">JSON</span>.stringify(data, <span class="literal">null</span>, <span class="number">4</span>))</span><br></pre></td></tr></table></figure>
+<h2 id="语法规范"><a href="#语法规范" class="headerlink" title="语法规范"></a>语法规范</h2><p>Mock.js 的语法规范包括两部分：</p>
+<ol>
+<li>数据模板定义规范<code>（Data Template Definition，DTD）</code></li>
+<li>数据占位符定义规范<code>（Data Placeholder Definition，DPD）</code></li>
+</ol>
+<h3 id="DTD"><a href="#DTD" class="headerlink" title="DTD"></a>DTD</h3><p>数据模板中的每个属性由 3 部分构成：属性名、生成规则、属性值</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">'name|rule': value</span><br><span class="line"></span><br><span class="line">属性名|生成规则: 属性值</span><br></pre></td></tr></table></figure>
+<p><strong>注意：</strong></p>
+<ul>
+<li><p><em>属性名</em> 和 <em>生成规则</em> 之间用竖线 <code>|</code> 分隔。</p>
+</li>
+<li><p><em>生成规则</em> 是可选的。</p>
+</li>
+<li><p>生成规则</p>
+<p>有 7 种格式：</p>
+<ol>
+<li><code>&#39;name|min-max&#39;: value</code></li>
+<li><code>&#39;name|count&#39;: value</code></li>
+<li><code>&#39;name|min-max.dmin-dmax&#39;: value</code></li>
+<li><code>&#39;name|min-max.dcount&#39;: value</code></li>
+<li><code>&#39;name|count.dmin-dmax&#39;: value</code></li>
+<li><code>&#39;name|count.dcount&#39;: value</code></li>
+<li><code>&#39;name|+step&#39;: value</code></li>
+</ol>
+</li>
+<li><p><strong>生成规则 的 含义 需要依赖 属性值的类型 才能确定。</strong></p>
+</li>
+<li><p><em>属性值</em> 中可以含有 <code>@占位符</code>。</p>
+</li>
+<li><p><em>属性值</em> 还指定了最终值的初始值和类型。</p>
+</li>
+</ul>
+<p><strong>示例</strong></p>
+<p><strong>String</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 重复string, 重复次数[min, max]</span><br><span class="line">'name|min-max': string</span><br><span class="line">// 重复次数count</span><br><span class="line">'name|count': string</span><br></pre></td></tr></table></figure>
+<p><strong>Number</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// 属性值自动加 1，初始值为 number</span><br><span class="line">'name|+1': number</span><br><span class="line">// 生成一个大于等于 min、小于等于 max 的整数，属性值 number 只是用来确定类型</span><br><span class="line">'name|min-max': number</span><br><span class="line">// 生成一个浮点数，整数部分大于等于 min、小于等于 max，小数部分保留 dmin 到 dmax 位</span><br><span class="line">'name|min-max.dmin-dmax': number</span><br><span class="line"></span><br><span class="line">Mock.mock(&#123;</span><br><span class="line">    'number1|1-100.1-10': 1,</span><br><span class="line">    'number2|123.1-10': 1,</span><br><span class="line">    'number3|123.3': 1,</span><br><span class="line">    'number4|123.10': 1.123</span><br><span class="line">&#125;)</span><br><span class="line">// =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    "number1": 12.92,</span><br><span class="line">    "number2": 123.51,</span><br><span class="line">    "number3": 123.777,</span><br><span class="line">    "number4": 123.1231091814</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Boolean</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// true or false 各50%</span><br><span class="line">'name|1': boolean</span><br><span class="line">// 值为 value 的概率是 min / (min + max)，值为 !value 的概率是 max / (min + max)</span><br><span class="line">'name|min-max': value</span><br></pre></td></tr></table></figure>
+<p><strong>Object</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 属性值 object 中随机选取 count 个属性</span><br><span class="line">'name|count': object</span><br><span class="line">// 从属性值 object 中随机选取 min 到 max 个属性</span><br><span class="line">'name|min-max': object</span><br></pre></td></tr></table></figure>
+<p><strong>Array</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// array中随机取1个</span><br><span class="line">'name|1': array</span><br><span class="line">// array 中顺序选取 1 个元素</span><br><span class="line">'name|+1': array</span><br><span class="line">// 重复属性值 array, 次数[min,max]</span><br><span class="line">'name|min-max': array</span><br><span class="line">// 重复属性值 array, 次数count</span><br><span class="line">'name|count': array</span><br></pre></td></tr></table></figure>
+<p><strong>Function</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 执行函数 function，取其返回值作为最终的属性值，函数的上下文为属性 'name' 所在的对象</span><br><span class="line">'name': function</span><br></pre></td></tr></table></figure>
+<p><strong>RegExp</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 正则</span><br><span class="line">'name': regexp</span><br><span class="line"></span><br><span class="line">Mock.mock(&#123;</span><br><span class="line">    'regexp1': /[a-z][A-Z][0-9]/,</span><br><span class="line">    'regexp2': /\w\W\s\S\d\D/,</span><br><span class="line">    'regexp3': /\d&#123;5,10&#125;/</span><br><span class="line">&#125;)</span><br><span class="line">// =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    "regexp1": "pJ7",</span><br><span class="line">    "regexp2": "F)\fp1G",</span><br><span class="line">    "regexp3": "561659409"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="DPD"><a href="#DPD" class="headerlink" title="DPD"></a>DPD</h3><p><em>占位符</em> 只是在属性值字符串中占个位置，并不出现在最终的属性值中。占位符格式：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@占位符</span><br><span class="line">@占位符(参数 [, 参数])</span><br></pre></td></tr></table></figure>
+<p><strong>注意：</strong></p>
+<ol>
+<li>用 <code>@</code> 来标识其后的字符串是 <em>占位符</em>。</li>
+<li><em>占位符</em> 引用的是 <code>Mock.Random</code> 中的方法。</li>
+<li>通过 <code>Mock.Random.extend()</code> 来扩展自定义占位符。</li>
+<li><em>占位符</em> 也可以引用 <em>数据模板</em> 中的属性。</li>
+<li><em>占位符</em> 会优先引用 <em>数据模板</em> 中的属性。</li>
+<li><em>占位符</em> 支持 <em>相对路径</em> 和 <em>绝对路径</em>。</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Mock.mock(&#123;</span><br><span class="line">    name: &#123;</span><br><span class="line">        first: '@FIRST',</span><br><span class="line">        middle: '@MIDDLE',</span><br><span class="line">        last: '@LAST',</span><br><span class="line">        full: '@first @middle @last'</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">// =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    "name": &#123;</span><br><span class="line">        "first": "Charles",</span><br><span class="line">        "middle": "Brenda",</span><br><span class="line">        "last": "Lopez",</span><br><span class="line">        "full": "Charles Brenda Lopez"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Mock-mock"><a href="#Mock-mock" class="headerlink" title="Mock.mock()"></a>Mock.mock()</h2><ol>
+<li>Mock.mock( rurl?, rtype?, template|function( options ) )</li>
+</ol>
+<p>根据数据模板生成模拟数据。</p>
+<ol start="2">
+<li>Mock.mock( template )</li>
+</ol>
+<p>根据数据模板生成模拟数据。</p>
+<ol start="3">
+<li>Mock.mock( rurl, template )</li>
+</ol>
+<p>记录数据模板。当拦截到匹配 <code>rurl</code> 的 Ajax 请求时，将根据数据模板 <code>template</code> 生成模拟数据，并作为响应数据返回。</p>
+<ol start="4">
+<li>Mock.mock( rurl, function( options ) )</li>
+</ol>
+<p>记录用于生成响应数据的函数。当拦截到匹配 <code>rurl</code> 的 Ajax 请求时，函数 <code>function(options)</code> 将被执行，并把执行结果作为响应数据返回。</p>
+<ol start="5">
+<li>Mock.mock( rurl, rtype, template )</li>
+</ol>
+<p>记录数据模板。当拦截到匹配 <code>rurl</code> 和 <code>rtype</code> 的 Ajax 请求时，将根据数据模板 <code>template</code> 生成模拟数据，并作为响应数据返回。</p>
+<ol start="6">
+<li>Mock.mock( rurl, rtype, function( options ) )</li>
+</ol>
+<p>记录用于生成响应数据的函数。当拦截到匹配 <code>rurl</code> 和 <code>rtype</code> 的 Ajax 请求时，函数 <code>function(options)</code> 将被执行，并把执行结果作为响应数据返回。</p>
+<ol start="7">
+<li>rurl</li>
+</ol>
+<p>可选。</p>
+<p>表示需要拦截的 URL，可以是 URL 字符串或 URL 正则。例如 <code>/\/domain\/list\.json/</code>、<code>&#39;/domian/list.json&#39;</code>。</p>
+<ol start="8">
+<li>rtype</li>
+</ol>
+<p>可选。</p>
+<p>表示需要拦截的 Ajax 请求类型。例如 <code>GET</code>、<code>POST</code>、<code>PUT</code>、<code>DELETE</code> 等。</p>
+<ol start="9">
+<li>template</li>
+</ol>
+<p>可选。</p>
+<p>表示数据模板，可以是对象或字符串。例如 <code>{ &#39;data|1-10&#39;:[{}] }</code>、<code>&#39;@EMAIL&#39;</code>。</p>
+<ol start="10">
+<li>function(options)</li>
+</ol>
+<p>可选。</p>
+<p>表示用于生成响应数据的函数。</p>
+<ol start="11">
+<li>options</li>
+</ol>
+<p>指向本次请求的 Ajax 选项集，含有 <code>url</code>、<code>type</code> 和 <code>body</code> 三个属性，</p>
+<h2 id="Mock设置"><a href="#Mock设置" class="headerlink" title="Mock设置"></a>Mock设置</h2><p>指定被拦截的 Ajax 请求的响应时间，单位是毫秒。值可以是正整数，例如 <code>400</code>，表示 400 毫秒 后才会返回响应内容；也可以是横杠 <code>&#39;-&#39;</code> 风格的字符串，例如 <code>&#39;200-600&#39;</code>，表示响应时间介于 200 和 600 毫秒之间。默认值是<code>&#39;10-100&#39;</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Mock.setup(&#123;</span><br><span class="line">    timeout: 400</span><br><span class="line">&#125;)</span><br><span class="line">Mock.setup(&#123;</span><br><span class="line">    timeout: '200-600'</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="Mock-Random"><a href="#Mock-Random" class="headerlink" title="Mock.Random"></a>Mock.Random</h2><p>Mock.Random 是一个工具类，用于生成各种随机数据</p>
+<p><strong>Mock.Random 的方法在数据模板中称为『占位符』，书写格式为 @占位符(参数 [, 参数])</strong> </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">var Random = Mock.Random</span><br><span class="line">Random.email()</span><br><span class="line">// =&gt; "n.clark@miller.io"</span><br><span class="line">Mock.mock('@email')</span><br><span class="line">// =&gt; "y.lee@lewis.org"</span><br><span class="line">Mock.mock( &#123; email: '@email' &#125; )</span><br><span class="line">// =&gt; &#123; email: "v.lewis@hall.gov" &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><p>Mock.Random 提供的完整方法（占位符）如下：</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basic</td>
+<td>boolean, natural, integer, float, character, string, range, date, time, datetime, now</td>
+</tr>
+<tr>
+<td>Image</td>
+<td>image, dataImage</td>
+</tr>
+<tr>
+<td>Color</td>
+<td>color</td>
+</tr>
+<tr>
+<td>Text</td>
+<td>paragraph, sentence, word, title, cparagraph, csentence, cword, ctitle</td>
+</tr>
+<tr>
+<td>Name</td>
+<td>first, last, name, cfirst, clast, cname</td>
+</tr>
+<tr>
+<td>Web</td>
+<td>url, domain, email, ip, tld</td>
+</tr>
+<tr>
+<td>Address</td>
+<td>area, region</td>
+</tr>
+<tr>
+<td>Helper</td>
+<td>capitalize, upper, lower, pick, shuffle</td>
+</tr>
+<tr>
+<td>Miscellaneous</td>
+<td>guid, id</td>
+</tr>
+</tbody>
+</table>
+<p><strong>扩展</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Random.extend(&#123;</span><br><span class="line">    constellation: function(date) &#123;</span><br><span class="line">        var constellations = ['白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座']</span><br><span class="line">        return this.pick(constellations)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">Random.constellation()</span><br><span class="line">// =&gt; "水瓶座"</span><br><span class="line">Mock.mock('@CONSTELLATION')</span><br><span class="line">// =&gt; "天蝎座"</span><br><span class="line">Mock.mock(&#123;</span><br><span class="line">    constellation: '@CONSTELLATION'</span><br><span class="line">&#125;)</span><br><span class="line">// =&gt; &#123; constellation: "射手座" &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Basic"><a href="#Basic" class="headerlink" title="Basic"></a>Basic</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">// 1. 返回一个随机的布尔值</span><br><span class="line">Random.boolean( min?, max?, current? )</span><br><span class="line">Random.boolean()</span><br><span class="line">// =&gt; true</span><br><span class="line">Random.boolean(1, 9, true)</span><br><span class="line">// =&gt; false</span><br><span class="line"></span><br><span class="line">// 2. 返回一个随机的自然数（大于等于 0 的整数）</span><br><span class="line">Random.natural( min?, max? )</span><br><span class="line"></span><br><span class="line">// 3. 返回一个随机的整数</span><br><span class="line">Random.integer( min?, max? )</span><br><span class="line"></span><br><span class="line">// 4. 返回一个随机的浮点数,min/max证书部分最值，dmin,dmax小数部分位数最值</span><br><span class="line">Random.float( min?, max?, dmin?, dmax? )</span><br><span class="line">Random.float(60, 100, 3, 5)</span><br><span class="line">// =&gt; 70.6849</span><br><span class="line"></span><br><span class="line">// 5. 返回一个随机字符</span><br><span class="line">Random.character( pool? )</span><br><span class="line">果传入了 'lower' 或 'upper'、'number'、'symbol'，表示从内置的字符池从选取</span><br><span class="line">&#123;</span><br><span class="line">    lower: "abcdefghijklmnopqrstuvwxyz",</span><br><span class="line">    upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",</span><br><span class="line">    number: "0123456789",</span><br><span class="line">    symbol: "!@#$%^&amp;*()[]"</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 6. 返回一个随机字符串</span><br><span class="line">Random.string( pool?, min?, max? )</span><br><span class="line"></span><br><span class="line">// 7. 返回一个整型数组</span><br><span class="line">Random.range( start?, stop, step? )</span><br><span class="line">Random.range(10)</span><br><span class="line">// =&gt; [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</span><br><span class="line">Random.range(3, 7)</span><br><span class="line">// =&gt; [3, 4, 5, 6]</span><br><span class="line">Random.range(1, 10, 2)</span><br><span class="line">// =&gt; [1, 3, 5, 7, 9]</span><br></pre></td></tr></table></figure>
+<h3 id="Date"><a href="#Date" class="headerlink" title="Date"></a>Date</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 返回一个随机的日期字符串</span><br><span class="line">Random.date( format? )</span><br><span class="line"></span><br><span class="line">// 返回一个随机的时间字符串</span><br><span class="line">Random.time( format? )</span><br><span class="line"></span><br><span class="line">// 返回一个随机的日期和时间字符串,默认值为 yyyy-MM-dd HH:mm:ss</span><br><span class="line">Random.datetime( format? )</span><br><span class="line"></span><br><span class="line">// 返回当前的日期和时间字符串。</span><br><span class="line">Random.now( unit?, format? )</span><br></pre></td></tr></table></figure>
+<p>指示生成的日期字符串的格式。默认值为 <code>yyyy-MM-dd</code></p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yyyy</td>
+<td>A full numeric representation of a year, 4 digits</td>
+<td>1999 or 2003</td>
+</tr>
+<tr>
+<td>yy</td>
+<td>A two digit representation of a year</td>
+<td>99 or 03</td>
+</tr>
+<tr>
+<td>y</td>
+<td>A two digit representation of a year</td>
+<td>99 or 03</td>
+</tr>
+<tr>
+<td>MM</td>
+<td>Numeric representation of a month, with leading zeros</td>
+<td>01 to 12</td>
+</tr>
+<tr>
+<td>M</td>
+<td>Numeric representation of a month, without leading zeros</td>
+<td>1 to 12</td>
+</tr>
+<tr>
+<td>dd</td>
+<td>Day of the month, 2 digits with leading zeros</td>
+<td>01 to 31</td>
+</tr>
+<tr>
+<td>d</td>
+<td>Day of the month without leading zeros</td>
+<td>1 to 31</td>
+</tr>
+<tr>
+<td>HH</td>
+<td>24-hour format of an hour with leading zeros</td>
+<td>00 to 23</td>
+</tr>
+<tr>
+<td>H</td>
+<td>24-hour format of an hour without leading zeros</td>
+<td>0 to 23</td>
+</tr>
+<tr>
+<td>hh</td>
+<td>12-hour format of an hour without leading zeros</td>
+<td>1 to 12</td>
+</tr>
+<tr>
+<td>h</td>
+<td>12-hour format of an hour with leading zeros</td>
+<td>01 to 12</td>
+</tr>
+<tr>
+<td>mm</td>
+<td>Minutes, with leading zeros</td>
+<td>00 to 59</td>
+</tr>
+<tr>
+<td>m</td>
+<td>Minutes, without leading zeros</td>
+<td>0 to 59</td>
+</tr>
+<tr>
+<td>ss</td>
+<td>Seconds, with leading zeros</td>
+<td>00 to 59</td>
+</tr>
+<tr>
+<td>s</td>
+<td>Seconds, without leading zeros</td>
+<td>0 to 59</td>
+</tr>
+<tr>
+<td>SS</td>
+<td>Milliseconds, with leading zeros</td>
+<td>000 to 999</td>
+</tr>
+<tr>
+<td>S</td>
+<td>Milliseconds, without leading zeros</td>
+<td>0 to 999</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Uppercase Ante meridiem and Post meridiem</td>
+<td>AM or PM</td>
+</tr>
+<tr>
+<td>a</td>
+<td>Lowercase Ante meridiem and Post meridiem</td>
+<td>am or pm</td>
+</tr>
+<tr>
+<td>T</td>
+<td>Milliseconds, since 1970-1-1 00:00:00 UTC</td>
+<td>759883437303</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 示例</span><br><span class="line">Random.date()</span><br><span class="line">// =&gt; "2002-10-23"</span><br><span class="line">Random.date('yyyy-MM-dd')</span><br><span class="line">// =&gt; "1983-01-29"</span><br><span class="line"></span><br><span class="line">Random.time('HH:mm:ss')</span><br><span class="line">// =&gt; "03:57:53"</span><br><span class="line"></span><br><span class="line">Random.datetime('yyyy-MM-dd A HH:mm:ss')</span><br><span class="line">// =&gt; "1976-04-24 AM 03:48:25</span><br><span class="line"></span><br><span class="line">Random.now('yyyy-MM-dd HH:mm:ss SS')</span><br><span class="line">// =&gt; "2014-04-29 20:08:38 157"</span><br></pre></td></tr></table></figure>
+<h3 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// 生成一个随机的图片地址</span><br><span class="line">// Random.image() 用于生成高度自定义的图片地址，一般情况下，应该使用更简单的 Random.dataImage()</span><br><span class="line">Random.image( size?, background?, foreground?, format?, text? )</span><br><span class="line">Random.image()</span><br><span class="line">Random.image( size )</span><br><span class="line">Random.image( size, background )</span><br><span class="line">Random.image( size, background, text )</span><br><span class="line">Random.image( size, background, foreground, text )</span><br><span class="line">Random.image( size, background, foreground, format, text )</span><br><span class="line"></span><br><span class="line">// 生成一段随机的 Base64 图片编码</span><br><span class="line">Random.dataImage( size?, text? )</span><br><span class="line">Random.dataImage()</span><br><span class="line">Random.dataImage( size )</span><br><span class="line">Random.dataImage( size, text )</span><br></pre></td></tr></table></figure>
+<h3 id="Color"><a href="#Color" class="headerlink" title="Color"></a>Color</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Random.color()</span><br><span class="line">// =&gt; "#3538B2"</span><br><span class="line">Random.hex()</span><br><span class="line">// =&gt; "#3538B2"</span><br><span class="line">Random.rgb()</span><br><span class="line">// =&gt; "rgb(242, 198, 121)"</span><br><span class="line">Random.rgba()</span><br><span class="line">// =&gt; "rgba(242, 198, 121, 0.13)"</span><br><span class="line">Random.hsl()</span><br><span class="line">// =&gt; "hsl(345, 82, 71)"</span><br></pre></td></tr></table></figure>
+<h3 id="Text"><a href="#Text" class="headerlink" title="Text"></a>Text</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">// 随机生成一段文本</span><br><span class="line">Random.paragraph( min?, max? )</span><br><span class="line">Random.paragraph()</span><br><span class="line">Random.paragraph( len )</span><br><span class="line">Random.paragraph( min, max )</span><br><span class="line"></span><br><span class="line">// 随机生成一段中文文本</span><br><span class="line">Random.cparagraph( min?, max? )</span><br><span class="line">Random.cparagraph()</span><br><span class="line">Random.cparagraph( len )</span><br><span class="line">Random.cparagraph( min, max )</span><br><span class="line"></span><br><span class="line">// 随机生成一个句子，第一个单词的首字母大写</span><br><span class="line">Random.sentence( min?, max? )</span><br><span class="line">Random.sentence()</span><br><span class="line">Random.sentence( len )</span><br><span class="line">Random.sentence( min, max )</span><br><span class="line"></span><br><span class="line">// 随机生成一段中文文本</span><br><span class="line">Random.csentence( min?, max? )</span><br><span class="line">Random.csentence()</span><br><span class="line">Random.csentence( len )</span><br><span class="line">Random.csentence( min, max )</span><br><span class="line"></span><br><span class="line">// 随机生成一个单词</span><br><span class="line">Random.word( min?, max? )</span><br><span class="line">Random.word()</span><br><span class="line">Random.word( len )</span><br><span class="line">Random.word( min, max )</span><br><span class="line"></span><br><span class="line">// 随机生成一个汉字</span><br><span class="line">Random.cword( pool?, min?, max? )</span><br><span class="line">Random.cword()</span><br><span class="line">Random.cword( pool )</span><br><span class="line">Random.cword( length )</span><br><span class="line">Random.cword( pool, length )</span><br><span class="line">Random.cword( min, max )</span><br><span class="line">Random.cword( pool, min, max )</span><br><span class="line"></span><br><span class="line">// 随机生成一句标题，其中每个单词的首字母大写</span><br><span class="line">Random.title( min?, max? )</span><br><span class="line"></span><br><span class="line">// 随机生成一句中文标题</span><br><span class="line">Random.ctitle( min?, max? )</span><br></pre></td></tr></table></figure>
+<h3 id="Name"><a href="#Name" class="headerlink" title="Name"></a>Name</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Random.first()</span><br><span class="line">Random.last()</span><br><span class="line">Random.name( middle? )</span><br><span class="line"></span><br><span class="line">Random.cfirst()</span><br><span class="line">Random.clast()</span><br><span class="line">Random.cname()</span><br></pre></td></tr></table></figure>
+<h3 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Random.url( protocol?, host? )</span><br><span class="line">Random.url()</span><br><span class="line">// =&gt; "mid://axmg.bg/bhyq"</span><br><span class="line">Random.url('http')</span><br><span class="line">// =&gt; "http://splap.yu/qxzkyoubp"</span><br><span class="line">Random.url('http', 'nuysoft.com')</span><br><span class="line">// =&gt; "http://nuysoft.com/ewacecjhe"</span><br><span class="line"></span><br><span class="line">Random.protocol()</span><br><span class="line">// =&gt; "ftp"</span><br><span class="line">Random.domain()</span><br><span class="line">// =&gt; "kozfnb.org"</span><br><span class="line">Random.tld()</span><br><span class="line">// =&gt; "net"</span><br><span class="line">Random.email()</span><br><span class="line">// =&gt; "x.davis@jackson.edu"</span><br><span class="line">Random.email('nuysoft.com')</span><br><span class="line">// =&gt; "h.pqpneix@nuysoft.com"</span><br><span class="line"></span><br><span class="line">Random.ip()</span><br><span class="line">// =&gt; "34.206.109.169"</span><br></pre></td></tr></table></figure>
+<h3 id="Address"><a href="#Address" class="headerlink" title="Address"></a>Address</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Random.region()</span><br><span class="line">// =&gt; "华北"</span><br><span class="line">Random.province()</span><br><span class="line">// =&gt; "黑龙江省"</span><br><span class="line">Random.city()</span><br><span class="line">// =&gt; "唐山市"</span><br><span class="line">Random.city(true)</span><br><span class="line">// =&gt; "福建省 漳州市"</span><br><span class="line">Random.county()</span><br><span class="line">// =&gt; "上杭县"</span><br><span class="line">Random.county(true)</span><br><span class="line">// =&gt; "甘肃省 白银市 会宁县"</span><br><span class="line">Random.zip()</span><br><span class="line">// =&gt; "908812"</span><br></pre></td></tr></table></figure>
+<h3 id="Helper"><a href="#Helper" class="headerlink" title="Helper"></a>Helper</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Random.capitalize('hello')</span><br><span class="line">// =&gt; "Hello"</span><br><span class="line">Random.upper('hello')</span><br><span class="line">// =&gt; "HELLO"</span><br><span class="line">Random.lower('HELLO')</span><br><span class="line">// =&gt; "hello"</span><br><span class="line">Random.pick(['a', 'e', 'i', 'o', 'u'])</span><br><span class="line">// =&gt; "o"</span><br><span class="line">Random.shuffle(['a', 'e', 'i', 'o', 'u'])</span><br><span class="line">// =&gt; ["o", "u", "e", "i", "a"]</span><br></pre></td></tr></table></figure>
+<h3 id="Miscellaneous"><a href="#Miscellaneous" class="headerlink" title="Miscellaneous"></a>Miscellaneous</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Random.guid()</span><br><span class="line">// =&gt; "662C63B4-FD43-66F4-3328-C54E3FF0D56E"</span><br><span class="line">Random.id()</span><br><span class="line">// =&gt; "420000200710091854" 身份证</span><br><span class="line">Random.increment()</span><br><span class="line">// =&gt; 1</span><br><span class="line">Random.increment(100)</span><br><span class="line">// =&gt; 101</span><br><span class="line">Random.increment(1000)</span><br><span class="line">// =&gt; 1101</span><br></pre></td></tr></table></figure>
+<h2 id="Mock-valid"><a href="#Mock-valid" class="headerlink" title="Mock.valid()"></a>Mock.valid()</h2><p>用来校验真实数据<code>data</code>是否与数据模板<code>template</code>匹配</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Mock.valid( template, data )</span><br><span class="line"></span><br><span class="line">var template = &#123;</span><br><span class="line">    name: 'value1'</span><br><span class="line">&#125;</span><br><span class="line">var data = &#123;</span><br><span class="line">    name: 'value2'</span><br><span class="line">&#125;</span><br><span class="line">Mock.valid(template, data)</span><br><span class="line">// =&gt;</span><br><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        "path": [</span><br><span class="line">            "data",</span><br><span class="line">            "name"</span><br><span class="line">        ],</span><br><span class="line">        "type": "value",</span><br><span class="line">        "actual": "value2",</span><br><span class="line">        "expected": "value1",</span><br><span class="line">        "action": "equal to",</span><br><span class="line">        "message": "[VALUE] Expect ROOT.name'value is equal to value1, but is value2"</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<h2 id="Mock-toJSONSchema"><a href="#Mock-toJSONSchema" class="headerlink" title="Mock.toJSONSchema()"></a>Mock.toJSONSchema()</h2><p>把 Mock.js 风格的数据模板 template 转换成 JSON Schema</p>
+<h2 id="Vue项目中使用mock"><a href="#Vue项目中使用mock" class="headerlink" title="Vue项目中使用mock"></a>Vue项目中使用mock</h2><ol>
+<li>安装</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev mockjs</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>引入</li>
+</ol>
+<p>在main.js， 引入mockjs</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">process.env === 'development' &amp;&amp; require('@/mock')</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>创建mock</li>
+</ol>
+<p>在src目录下创建mock目录，添加index.js文件，这里建议给每类api使用单独的mock文件</p>
+<p><code>mock/index.js</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将所有的mock文件引入</span></span><br><span class="line"><span class="built_in">require</span>(<span class="string">'@/mock/usermock'</span>)</span><br><span class="line"><span class="built_in">require</span>(<span class="string">'@/mock/wxmock'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在这里可以做一些通用的配置</span></span><br><span class="line"><span class="keyword">const</span> Mock = <span class="built_in">require</span>(<span class="string">"mockjs"</span>)</span><br><span class="line"><span class="comment">// 设置所有ajax请求的超时时间，模拟网络传输耗时</span></span><br><span class="line">Mock.setup(&#123;</span><br><span class="line">    timeout: <span class="number">0</span><span class="number">-300</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>mock/usermock.js</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ApiPath <span class="keyword">from</span> <span class="string">"@/api/ApiPath"</span></span><br><span class="line"><span class="keyword">const</span> Mock = <span class="built_in">require</span>(<span class="string">"mockjs"</span>)</span><br><span class="line"></span><br><span class="line">Mock.mock(ApiPath.user.getUserInfo, <span class="string">"get"</span>, &#123;</span><br><span class="line">    <span class="string">"code"</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="string">"data"</span>: &#123;</span><br><span class="line">      <span class="string">"fullName"</span>: <span class="string">"@CNAME"</span>, <span class="comment">// 随机生成中文人名</span></span><br><span class="line">      <span class="string">"userId"</span>: <span class="number">1000234234001</span>,</span><br><span class="line">      <span class="string">"username"</span>: <span class="string">"zhangsan"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"msg"</span>: <span class="string">"success"</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="常用Mock"><a href="#常用Mock" class="headerlink" title="常用Mock"></a>常用Mock</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Mock.mock(&#123;</span><br><span class="line">    login_id: Mock.Random.integer(<span class="number">11</span>),</span><br><span class="line">    name: Mock.Random.cname(),</span><br><span class="line">    enable: Mock.Random.integer(<span class="number">0</span>, <span class="number">1</span>),</span><br><span class="line">    gmt_create: Mock.Random.datetime(<span class="string">'yyyy-MM-dd HH:mm:ss'</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li><a href="https://segmentfault.com/a/1190000008839142" target="_blank" rel="noopener">Mock.js使用</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/04/mockjs新手入门/" data-id="ck3rg4n90000nvokpx7kqd4jt" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/Blog/tags/mock-js/">mock.js</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+ <script src="/Blog/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/Blog/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+  
+    <a href="/Blog/2019/11/24/Django入门/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">Django入门</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语法规范"><span class="toc-number">2.</span> <span class="toc-text">语法规范</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DTD"><span class="toc-number">2.1.</span> <span class="toc-text">DTD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DPD"><span class="toc-number">2.2.</span> <span class="toc-text">DPD</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mock-mock"><span class="toc-number">3.</span> <span class="toc-text">Mock.mock()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mock设置"><span class="toc-number">4.</span> <span class="toc-text">Mock设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mock-Random"><span class="toc-number">5.</span> <span class="toc-text">Mock.Random</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#方法"><span class="toc-number">5.1.</span> <span class="toc-text">方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic"><span class="toc-number">5.2.</span> <span class="toc-text">Basic</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Date"><span class="toc-number">5.3.</span> <span class="toc-text">Date</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Image"><span class="toc-number">5.4.</span> <span class="toc-text">Image</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Color"><span class="toc-number">5.5.</span> <span class="toc-text">Color</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Text"><span class="toc-number">5.6.</span> <span class="toc-text">Text</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Name"><span class="toc-number">5.7.</span> <span class="toc-text">Name</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Web"><span class="toc-number">5.8.</span> <span class="toc-text">Web</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Address"><span class="toc-number">5.9.</span> <span class="toc-text">Address</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Helper"><span class="toc-number">5.10.</span> <span class="toc-text">Helper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Miscellaneous"><span class="toc-number">5.11.</span> <span class="toc-text">Miscellaneous</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mock-valid"><span class="toc-number">6.</span> <span class="toc-text">Mock.valid()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mock-toJSONSchema"><span class="toc-number">7.</span> <span class="toc-text">Mock.toJSONSchema()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue项目中使用mock"><span class="toc-number">8.</span> <span class="toc-text">Vue项目中使用mock</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常用Mock"><span class="toc-number">9.</span> <span class="toc-text">常用Mock</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文章"><span class="toc-number">10.</span> <span class="toc-text">参考文章</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 Hyman Hu&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;hyman213@163.com
+    </div>
+  </div>
+</footer>
+ <script src="/Blog/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/Blog/" class="mobile-nav-link">首页</a>
+  
+    <a href="/Blog/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/Blog/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/Blog/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/Blog/fancybox/jquery.fancybox.css">
+  <script src="/Blog/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/Blog/js/script.js"></script>
+<script src="/Blog/js/elevator.js"></script>
+  </div>
+</body>
+</html>
