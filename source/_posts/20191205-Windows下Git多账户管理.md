@@ -79,7 +79,7 @@ User username
 idobe@Hyman-PC MINGW64 ~/Desktop
 $ ssh -T git@github.com
 Enter passphrase for key 'C:\\Users\\idobe\\.ssh\\github\\id_rsa_github':
-Hi hyman213! You've successfully authenticated, but GitHub does not provide shell access.
+Hi hyman213! You've successfully authenticated, but GitHub does not provide shell access
 
 idobe@Hyman-PC MINGW64 ~/Desktop
 $ ssh -T git@gitlab.com
